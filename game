@@ -1,0 +1,77 @@
+import pygame
+import sys
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+# Colors
+WHITE = (255, 255, 255)
+
+# Game variables
+cat_y = 400
+cat_velocity_y = 0
+cat_gravity = 0.8
+cat_jump_power = -15
+ground_height = 500
+
+car_x = 800
+car_speed = -10
+
+# Load images
+cat_img = pygame.image.load('cat.png')
+car_img = pygame.image.load('car.png')
+
+# Set up display
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Cat Jump Game')
+
+# Game loop
+running = True
+clock = pygame.time.Clock()
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and cat_y == ground_height - cat_img.get_height():
+                cat_velocity_y = cat_jump_power
+
+    # Update cat position
+    cat_velocity_y += cat_gravity
+    cat_y += cat_velocity_y
+    if cat_y > ground_height - cat_img.get_height():
+        cat_y = ground_height - cat_img.get_height()
+
+    # Update car position
+    car_x += car_speed
+    if car_x < -car_img.get_width():
+        car_x = SCREEN_WIDTH
+
+    # Check for collision
+    cat_rect = cat_img.get_rect(topleft=(100, cat_y))
+    car_rect = car_img.get_rect(topleft=(car_x, ground_height - car_img.get_height()))
+
+    if cat_rect.colliderect(car_rect):
+        running = False
+
+    # Draw everything
+    screen.fill(WHITE)
+    screen.blit(cat_img, (100, cat_y))
+    screen.blit(car_img, (car_x, ground_height - car_img.get_height()))
+    pygame.display.flip()
+    clock.tick(30)
+
+# Display Game Over
+font = pygame.font.Font(None, 74)
+text = font.render('Game Over', True, (255, 0, 0))
+screen.blit(text, (250, 250))
+pygame.display.flip()
+pygame.time.wait(2000)
+
+pygame.quit()
